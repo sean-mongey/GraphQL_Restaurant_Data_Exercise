@@ -76,9 +76,16 @@ type Dish{
   name: String
   price: Int
 }
+
+ input DishInput {
+  name: String
+  price: Int
+}
+
 input restaurantInput{
   name: String
   description: String
+  dishes: [DishInput]
 }
 type DeleteResponse{
   ok: Boolean!
@@ -95,8 +102,16 @@ var root = {
   restaurant: (arg) => restaurants[arg.id],
   restaurants: () => restaurants,
   setrestaurant: ({ input }) => {
-    restaurants.push({ name: input.name, email: input.email, age: input.age });
-    return input;
+    restaurants.push({
+      id: restaurants.length + 1,
+      name: input.name,
+      description: input.description,
+      dishes: input.dishes.map(dish => ({
+        name: dish.name,
+        price: dish.price
+      }))
+    });
+    return input; 
   },
   deleterestaurant: ({ id }) => {
     const ok = Boolean(restaurants[id]);
@@ -128,5 +143,4 @@ app.use(
 var port = 5500;
 app.listen(5500, () => console.log("Running Graphql on Port:" + port));
 
-// Replace export with module.exports
 module.exports = root;
